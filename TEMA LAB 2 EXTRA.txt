@@ -1,0 +1,261 @@
+TEMA LAB 2 EXTRA
+
+
+1. Movie Class
+Movie.h
+
+
+#ifndef MOVIE_H
+#define MOVIE_H
+
+#include <string>
+
+class Movie {
+private:
+    std::string name;
+    int year;
+    double score;
+    int length;
+
+public:
+    // Constructor
+    Movie() : year(0), score(0.0), length(0) {}
+
+    // Getters and Setters
+    void set_name(const std::string& name);
+    std::string get_name() const;
+
+    void set_year(int year);
+    int get_year() const;
+
+    void set_score(double score);
+    double get_score() const;
+
+    void set_length(int length);
+    int get_length() const;
+
+    // Method to calculate passed years
+    int get_passed_years() const;
+};
+
+#endif
+
+Movie.cpp
+
+#include "Movie.h"
+#include <ctime>
+
+// Setters and Getters
+void Movie::set_name(const std::string& name) {
+    this->name = name;
+}
+
+std::string Movie::get_name() const {
+    return name;
+}
+
+void Movie::set_year(int year) {
+    this->year = year;
+}
+
+int Movie::get_year() const {
+    return year;
+}
+
+void Movie::set_score(double score) {
+    this->score = score;
+}
+
+double Movie::get_score() const {
+    return score;
+}
+
+void Movie::set_length(int length) {
+    this->length = length;
+}
+
+int Movie::get_length() const {
+    return length;
+}
+
+// Get the number of passed years since the release
+int Movie::get_passed_years() const {
+    time_t t = time(nullptr);   // Get current time
+    struct tm* currentTime = localtime(&t);
+    int currentYear = currentTime->tm_year + 1900;  // Current year
+    return currentYear - year;
+}
+
+
+
+2. Global Comparison Functions
+movie_compare.h
+
+
+#ifndef MOVIE_COMPARE_H
+#define MOVIE_COMPARE_H
+
+#include "Movie.h"
+
+// Function declarations
+int movie_compare_name(const Movie& m1, const Movie& m2);
+int movie_compare_year(const Movie& m1, const Movie& m2);
+int movie_compare_score(const Movie& m1, const Movie& m2);
+int movie_compare_length(const Movie& m1, const Movie& m2);
+int movie_compare_passed_years(const Movie& m1, const Movie& m2);
+
+#endif
+
+movie_compare.cpp
+
+#include "movie_compare.h"
+
+int movie_compare_name(const Movie& m1, const Movie& m2) {
+    return m1.get_name().compare(m2.get_name());
+}
+
+int movie_compare_year(const Movie& m1, const Movie& m2) {
+    if (m1.get_year() < m2.get_year()) return -1;
+    if (m1.get_year() > m2.get_year()) return 1;
+    return 0;
+}
+
+int movie_compare_score(const Movie& m1, const Movie& m2) {
+    if (m1.get_score() < m2.get_score()) return -1;
+    if (m1.get_score() > m2.get_score()) return 1;
+    return 0;
+}
+
+int movie_compare_length(const Movie& m1, const Movie& m2) {
+    if (m1.get_length() < m2.get_length()) return -1;
+    if (m1.get_length() > m2.get_length()) return 1;
+    return 0;
+}
+
+int movie_compare_passed_years(const Movie& m1, const Movie& m2) {
+    int passed1 = m1.get_passed_years();
+    int passed2 = m2.get_passed_years();
+    
+    if (passed1 < passed2) return -1;
+    if (passed1 > passed2) return 1;
+    return 0;
+}
+
+
+
+3. MovieSeries Class
+MovieSeries.h
+
+
+#ifndef MOVIE_SERIES_H
+#define MOVIE_SERIES_H
+
+#include "Movie.h"
+
+class MovieSeries {
+private:
+    Movie* movies[16];
+    int count;
+
+public:
+    MovieSeries();  // Constructor
+    void init();  // Initialize
+    void add(Movie* movie);  // Add movie
+    void print() const;  // Print movie details
+    void sort();  // Sort by passed years (descending)
+};
+
+#endif
+
+
+MovieSeries.cpp
+
+
+#include "MovieSeries.h"
+#include <algorithm>
+#include <iostream>
+
+// Constructor to initialize count to 0
+MovieSeries::MovieSeries() : count(0) {}
+
+void MovieSeries::init() {
+    count = 0;
+}
+
+void MovieSeries::add(Movie* movie) {
+    if (count < 16) {
+        movies[count++] = movie;
+    }
+}
+
+void MovieSeries::print() const {
+    for (int i = 0; i < count; ++i) {
+        std::cout << "Name: " << movies[i]->get_name() << ", Year: " << movies[i]->get_year() 
+                  << ", IMDB Score: " << movies[i]->get_score() << ", Length: " 
+                  << movies[i]->get_length() << " minutes, Passed years: " 
+                  << movies[i]->get_passed_years() << std::endl;
+    }
+}
+
+void MovieSeries::sort() {
+    std::sort(movies, movies + count, [](Movie* m1, Movie* m2) {
+        return m1->get_passed_years() > m2->get_passed_years();  // Sort descending
+    });
+}
+
+
+
+4. Main File
+main.cpp
+
+#include <iostream>
+#include "Movie.h"
+#include "movie_compare.h"
+#include "MovieSeries.h"
+
+int main() {
+    Movie ep5;
+    ep5.set_name("Star Wars: Episode V - The Empire Strikes Back");
+    ep5.set_score(8.7);
+    ep5.set_year(1980);
+    ep5.set_length(124);
+
+    Movie ep4;
+    ep4.set_name("Star Wars: Episode IV - A New Hope");
+    ep4.set_score(8.6);
+    ep4.set_year(1977);
+    ep4.set_length(121);
+
+    Movie ep6;
+    ep6.set_name("Star Wars: Episode VI - Return of the Jedi");
+    ep6.set_score(8.3);
+    ep6.set_year(1983);
+    ep6.set_length(131);
+
+    printf(
+        R"(
+ep4, ep5 comparisons:
+name        : %d
+year        : %d
+score       : %d
+length      : %d
+passed years: %d
+)",
+        movie_compare_name(ep4, ep5),
+        movie_compare_year(ep4, ep5),
+        movie_compare_score(ep4, ep5),
+        movie_compare_length(ep4, ep5),
+        movie_compare_passed_years(ep4, ep5));
+
+    MovieSeries series;
+    series.init();
+    series.add(&ep5);
+    series.add(&ep4);
+    series.add(&ep6);
+
+    series.sort();
+    series.print();
+
+    return 0;
+}
+

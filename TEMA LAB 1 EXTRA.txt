@@ -1,0 +1,97 @@
+TEMA LAB 1 EXTRA
+
+Summary of Fixes
+Fixed function signatures to match the prototypes.
+Fixed function pointer array initialization to remove invalid entries.
+Fixed struct initialization so all fields are assigned.
+Declared the loop variable i properly.
+Added break statements in the switch case to prevent fall-through.
+Changed printf format specifier from %c to %d.
+Initialized S to 0 to prevent undefined behavior.
+Changed idx type to int to be used as an array index.
+
+
+HEADER.H
+#pragma once
+
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 1000
+
+enum VALORI {
+    INMULTIRE = 0,
+    SUMA,
+    REZERVAT1,
+    DIFERENTA,
+    REZERVAT2,
+    IMPARTIRE
+};
+
+typedef int (*func)(int, int);
+
+struct Content {
+    int p1;
+    int p2;
+};
+
+int Sum(int a, int b);
+int Dif(int a, int b);
+int Mul(int a, int b);
+int Div(int a, int b);
+
+
+
+SOURCE.CPP
+#include "header.h"
+
+int Sum(int a, int b) { return a + b; }
+int Dif(int a, int b) { return a - b; }
+int Mul(int a, int b) { return a * b; }
+int Div(int a, int b) { return (b != 0) ? a / b : 0; } // Evităm împărțirea la 0
+
+int main(int argc, char* argv[])
+{
+    char input[] = "---H***E+++L+++L///O---P+++O/+-**O---";
+    func Operatori[4] = {Sum, Dif, Mul, Div}; // Corectăm inițializarea vectorului de funcții
+    int S = 0, V = 0;
+    Content x = {0, 0}; // Inițializare corectă a structurii
+    int idx; // Index pentru selectarea funcției corecte
+
+    for (int i = 0; i < strlen(input); i++) // Declarăm variabila 'i' corect
+    {
+        switch (input[i] - 42)
+        {
+            case INMULTIRE:
+                idx = 2;
+                x.p1 = 3;
+                x.p2 = 3;
+                break;
+            case SUMA:
+                idx = 0;
+                x.p1 = 7;
+                x.p2 = 5;
+                break;
+            case DIFERENTA:
+                idx = 1;
+                x.p1 = 10;
+                x.p2 = 1;
+                break;
+            case IMPARTIRE:
+                idx = 3;
+                x.p1 = 8;
+                x.p2 = 4;
+                break;
+            default:
+                continue; // Ignorăm caractere necunoscute
+        }
+
+        S = S + Operatori[idx](x.p1, x.p2);
+    }
+
+    printf("S = %d\n", S); // Corectăm formatul de afișare
+
+    return 0;
+}

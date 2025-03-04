@@ -1,0 +1,305 @@
+TEMA LAB 2
+
+
+I.
+
+1. Fișier Header – NumberList.h
+
+#ifndef NUMBERLIST_H
+#define NUMBERLIST_H
+
+class NumberList
+{
+    int numbers[10];  // Lista numerelor (maxim 10)
+    int count;        // Contor pentru numărul de elemente adăugate
+
+public:
+    void Init();       // Inițializează count la 0
+    bool Add(int x);   // Adaugă un număr dacă lista nu este plină
+    void Sort();       // Sortează lista de numere
+    void Print();      // Afișează lista curentă de numere
+};
+
+#endif
+
+
+2. Fișier Sursă – NumberList.cpp
+#include "NumberList.h"
+#include <iostream>
+
+using namespace std;
+
+// Inițializează lista, setând count la 0
+void NumberList::Init()
+{
+    count = 0;
+}
+
+// Adaugă un număr în listă dacă nu este plină
+bool NumberList::Add(int x)
+{
+    if (count >= 10)  // Dacă lista este plină, returnează false
+        return false;
+    numbers[count++] = x;  // Adaugă numărul și crește contorul
+    return true;
+}
+
+// Sortează numerele din listă folosind algoritmul Bubble Sort
+void NumberList::Sort()
+{
+    for (int i = 0; i < count - 1; i++)
+    {
+        for (int j = 0; j < count - i - 1; j++)
+        {
+            if (numbers[j] > numbers[j + 1])
+            {
+                // Schimbă elementele dacă sunt în ordine greșită
+                int temp = numbers[j];
+                numbers[j] = numbers[j + 1];
+                numbers[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// Afișează numerele din listă
+void NumberList::Print()
+{
+    for (int i = 0; i < count; i++)
+    {
+        cout << numbers[i] << " ";
+    }
+    cout << endl;
+}
+
+
+3. Fișier Principal – main.cpp
+#include "NumberList.h"
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+    NumberList list; // Creăm un obiect de tip NumberList
+
+    // Inițializăm lista
+    list.Init();
+
+    // Adăugăm câteva numere în listă
+    list.Add(5);
+    list.Add(3);
+    list.Add(9);
+    list.Add(1);
+    list.Add(7);
+    list.Add(2);
+
+    // Afișăm lista înainte de sortare
+    cout << "Before sorting: ";
+    list.Print();
+
+    // Sortăm lista
+    list.Sort();
+
+    // Afișăm lista după sortare
+    cout << "After sorting: ";
+    list.Print();
+
+    // Încercăm să adăugăm mai multe numere până când lista este plină
+    for (int i = 0; i < 6; i++)
+    {
+        if (!list.Add(i * 10))
+        {
+            cout << "Cannot add more numbers, list is full!" << endl;
+        }
+    }
+
+    // Afișăm lista finală
+    cout << "Final list: ";
+    list.Print();
+
+    return 0;
+}
+
+
+
+
+
+II.
+
+1. Student.h (Header File for the Student Class)
+#ifndef STUDENT_H
+#define STUDENT_H
+
+#include <string>
+
+class Student {
+private:
+    std::string name;
+    float mathGrade;
+    float englishGrade;
+    float historyGrade;
+
+public:
+    void SetName(const std::string& studentName);
+    std::string GetName() const;
+
+    void SetMathGrade(float grade);
+    float GetMathGrade() const;
+
+    void SetEnglishGrade(float grade);
+    float GetEnglishGrade() const;
+
+    void SetHistoryGrade(float grade);
+    float GetHistoryGrade() const;
+
+    float GetAverageGrade() const;
+};
+
+#endif
+
+
+
+2. Student.cpp (Implementation of the Student Class)
+
+
+#include "Student.h"
+#include <stdexcept> // For exception handling
+
+void Student::SetName(const std::string& studentName) {
+    name = studentName;
+}
+
+std::string Student::GetName() const {
+    return name;
+}
+
+void Student::SetMathGrade(float grade) {
+    if (grade < 1.0f || grade > 10.0f) throw std::invalid_argument("Grade must be between 1 and 10.");
+    mathGrade = grade;
+}
+
+float Student::GetMathGrade() const {
+    return mathGrade;
+}
+
+void Student::SetEnglishGrade(float grade) {
+    if (grade < 1.0f || grade > 10.0f) throw std::invalid_argument("Grade must be between 1 and 10.");
+    englishGrade = grade;
+}
+
+float Student::GetEnglishGrade() const {
+    return englishGrade;
+}
+
+void Student::SetHistoryGrade(float grade) {
+    if (grade < 1.0f || grade > 10.0f) throw std::invalid_argument("Grade must be between 1 and 10.");
+    historyGrade = grade;
+}
+
+float Student::GetHistoryGrade() const {
+    return historyGrade;
+}
+
+float Student::GetAverageGrade() const {
+    return (mathGrade + englishGrade + historyGrade) / 3.0f;
+}
+
+
+3. StudentComparison.h (Header File for Global Functions)
+
+#ifndef STUDENT_COMPARISON_H
+#define STUDENT_COMPARISON_H
+
+#include "Student.h"
+
+int CompareByName(const Student& s1, const Student& s2);
+int CompareByMathGrade(const Student& s1, const Student& s2);
+int CompareByEnglishGrade(const Student& s1, const Student& s2);
+int CompareByHistoryGrade(const Student& s1, const Student& s2);
+int CompareByAverageGrade(const Student& s1, const Student& s2);
+
+#endif
+
+
+
+
+
+
+4. StudentComparison.cpp (Implementation of Global Functions)
+
+
+#include "StudentComparison.h"
+#include <string>
+
+// Generic comparison function
+int CompareFloat(float a, float b) {
+    if (a > b) return 1;
+    if (a < b) return -1;
+    return 0;
+}
+
+// Compare students by name (lexicographical order)
+int CompareByName(const Student& s1, const Student& s2) {
+    if (s1.GetName() == s2.GetName()) return 0;
+    return (s1.GetName() > s2.GetName()) ? 1 : -1;
+}
+
+// Compare students by Math grade
+int CompareByMathGrade(const Student& s1, const Student& s2) {
+    return CompareFloat(s1.GetMathGrade(), s2.GetMathGrade());
+}
+
+// Compare students by English grade
+int CompareByEnglishGrade(const Student& s1, const Student& s2) {
+    return CompareFloat(s1.GetEnglishGrade(), s2.GetEnglishGrade());
+}
+
+// Compare students by History grade
+int CompareByHistoryGrade(const Student& s1, const Student& s2) {
+    return CompareFloat(s1.GetHistoryGrade(), s2.GetHistoryGrade());
+}
+
+// Compare students by Average grade
+int CompareByAverageGrade(const Student& s1, const Student& s2) {
+    return CompareFloat(s1.GetAverageGrade(), s2.GetAverageGrade());
+}
+
+
+
+5. main.cpp (Main Program for Testing)
+
+#include <iostream>
+#include "Student.h"
+#include "StudentComparison.h"
+
+using namespace std;
+
+int main() {
+    Student s1, s2;
+
+    // Set student 1 details
+    s1.SetName("Alice");
+    s1.SetMathGrade(9.5);
+    s1.SetEnglishGrade(8.0);
+    s1.SetHistoryGrade(7.5);
+
+    // Set student 2 details
+    s2.SetName("Bob");
+    s2.SetMathGrade(8.0);
+    s2.SetEnglishGrade(9.0);
+    s2.SetHistoryGrade(8.5);
+
+    // Print student information
+    cout << "Student 1: " << s1.GetName() << ", Average: " << s1.GetAverageGrade() << endl;
+    cout << "Student 2: " << s2.GetName() << ", Average: " << s2.GetAverageGrade() << endl;
+
+    // Compare students
+    cout << "Comparison by Name: " << CompareByName(s1, s2) << endl;
+    cout << "Comparison by Math Grade: " << CompareByMathGrade(s1, s2) << endl;
+    cout << "Comparison by English Grade: " << CompareByEnglishGrade(s1, s2) << endl;
+    cout << "Comparison by History Grade: " << CompareByHistoryGrade(s1, s2) << endl;
+    cout << "Comparison by Average Grade: " << CompareByAverageGrade(s1, s2) << endl;
+
+    return 0;
+}

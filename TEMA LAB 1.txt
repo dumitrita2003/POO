@@ -1,0 +1,144 @@
+TEMA LAB 1
+
+1. Recap simple C library functions
+Write a program in C-Language that open the file "in.txt", and prints the sum of the numbers that are found on each line of the file "in.txt". To open the file use fopen API. Write your own function that converts a string to a number (similar cu atoi API). To print something to the screen, use the printf API.
+
+
+#include <stdio.h>
+
+// Custom function to convert a string to an integer (similar to atoi)
+int myAtoi(const char *str) {
+    int result = 0;
+    int sign = 1;
+    int i = 0;
+
+    // Handle negative numbers
+    if (str[0] == '-') {
+        sign = -1;
+        i++;
+    }
+
+    // Convert each character to integer
+    while (str[i] >= '0' && str[i] <= '9') {
+        result = result * 10 + (str[i] - '0');
+        i++;
+    }
+
+    return sign * result;
+}
+
+int main() {
+    FILE *file = fopen("in.txt", "r"); // Open file for reading
+    if (file == NULL) {
+        printf("Error: Could not open file in.txt\n");
+        return 1; // Exit if file opening fails
+    }
+
+    char line[100]; // Buffer to store each line
+    int sum = 0;
+
+    // Read each line and process it
+    while (fgets(line, sizeof(line), file) != NULL) {
+        sum += myAtoi(line); // Convert line to number and add to sum
+    }
+
+    fclose(file); // Close the file
+
+    printf("%d\n", sum); // Print the final sum
+
+    return 0;
+}
+
+
+2. Recap scanf/printf
+Read a sentence from the input using scanf API. Then sort split it into words and write to the screen (using the printf API) the words sorted (from the longest one to the shortest one).If two words have the same length - they will be sorted out alphabetically. We consider that each word is separated from another one using space (one or multiple).
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+#define MAX_WORDS 100
+#define MAX_LENGTH 1000
+
+// Function to compare two words based on length and lexicographical order
+int compareWords(const void *a, const void *b) {
+    char *word1 = *(char **)a;
+    char *word2 = *(char **)b;
+    
+    int len1 = strlen(word1);
+    int len2 = strlen(word2);
+
+    if (len1 != len2) {
+        return len2 - len1; // Sort by length (descending)
+    }
+    return strcmp(word1, word2); // Sort alphabetically if length is the same
+}
+
+int main() {
+    char input[MAX_LENGTH];
+    
+    // Read input using fgets to handle spaces correctly
+    printf("Enter a sentence: ");
+    fgets(input, MAX_LENGTH, stdin);
+
+    // Remove trailing newline character if present
+    input[strcspn(input, "\n")] = '\0';
+
+    char *words[MAX_WORDS];
+    int wordCount = 0;
+
+    // Tokenize the input using space as delimiter
+    char *token = strtok(input, " ");
+    while (token != NULL) {
+        words[wordCount] = token;
+        wordCount++;
+        token = strtok(NULL, " ");
+    }
+
+    // Sort the words using qsort and our custom compare function
+    qsort(words, wordCount, sizeof(char *), compareWords);
+
+    // Print sorted words
+    for (int i = 0; i < wordCount; i++) {
+        printf("%s\n", words[i]);
+    }
+
+    return 0;
+}
+
+
+
+3. Some C and C++ problem
+
+
+#include <iostream>
+using namespace std;
+
+// Funcție pentru a verifica dacă un număr este prim
+bool isPrime(int n)
+{
+    if (n < 2) // Numerele mai mici decât 2 nu sunt prime
+        return false;
+
+    for (int tr = 2; tr <= n / 2; tr++) // Verificăm divizibilitatea până la n/2
+        if ((n % tr) == 0) // Dacă n este divizibil cu tr, nu este prim
+            return false;
+
+    return true; // Dacă nu a fost găsit niciun divizor, n este prim
+}
+
+int main()
+{
+    int n;
+    std::cout << "Enter a number: ";
+    std::cin >> n; // Citim un număr de la tastatură
+
+    if (isPrime(n))
+        std::cout << n << " is prime!" << std::endl;
+    else 
+        std::cout << n << " is NOT prime!" << std::endl;
+
+    return 0;
+}
+
