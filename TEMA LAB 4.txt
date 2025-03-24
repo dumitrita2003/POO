@@ -1,0 +1,204 @@
+TEMA LAB 4
+
+
+ Sort.h (Header File)
+
+#pragma once
+#include <vector>
+#include <string>
+
+class Sort
+{
+    std::vector<int> elements;
+
+public:
+    // Constructors
+    Sort(int count, int min, int max);                            // Random values
+    Sort(std::initializer_list<int> initList);                    // Initialization list
+    Sort(const std::vector<int>& vec, int count);                 // From vector
+    Sort(const char* str);                                        // From string
+    Sort(int count, ...);                                         // Variadic parameters
+
+    // Sorting methods
+    void InsertSort(bool ascendent = false);
+    void QuickSort(bool ascendent = false);
+    void BubbleSort(bool ascendent = false);
+
+    // Utility methods
+    void Print() const;
+    int  GetElementsCount() const;
+    int  GetElementFromIndex(int index) const;
+
+private:
+    void QuickSortHelper(int low, int high, bool ascendent);
+    int Partition(int low, int high, bool ascendent);
+};
+
+
+Sort.cpp (Source File)
+
+
+// Sort.cpp
+#include "Sort.h"
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <sstream>
+#include <cstdarg>
+#include <algorithm>
+
+// Constructor - random values
+Sort::Sort(int count, int min, int max) {
+    srand((unsigned)time(0));
+    for (int i = 0; i < count; ++i)
+        elements.push_back(min + rand() % (max - min + 1));
+}
+
+// Constructor - initializer list
+Sort::Sort(std::initializer_list<int> initList) : elements(initList) {}
+
+// Constructor - from vector
+Sort::Sort(const std::vector<int>& vec, int count) {
+    for (int i = 0; i < count && i < vec.size(); ++i)
+        elements.push_back(vec[i]);
+}
+
+// Constructor - from string
+Sort::Sort(const char* str) {
+    std::stringstream ss(str);
+    std::string temp;
+    while (std::getline(ss, temp, ',')) {
+        elements.push_back(std::stoi(temp));
+    }
+}
+
+// Constructor - variadic
+Sort::Sort(int count, ...) {
+    va_list args;
+    va_start(args, count);
+    for (int i = 0; i < count; ++i)
+        elements.push_back(va_arg(args, int));
+    va_end(args);
+}
+
+// Insertion Sort
+void Sort::InsertSort(bool ascendent) {
+    for (int i = 1; i < elements.size(); ++i) {
+        int key = elements[i];
+        int j = i - 1;
+        while (j >= 0 && (ascendent ? elements[j] > key : elements[j] < key)) {
+            elements[j + 1] = elements[j];
+            --j;
+        }
+        elements[j + 1] = key;
+    }
+}
+
+// Bubble Sort
+void Sort::BubbleSort(bool ascendent) {
+    for (int i = 0; i < elements.size() - 1; ++i) {
+        for (int j = 0; j < elements.size() - i - 1; ++j) {
+            if ((ascendent && elements[j] > elements[j + 1]) || (!ascendent && elements[j] < elements[j + 1])) {
+                std::swap(elements[j], elements[j + 1]);
+            }
+        }
+    }
+}
+
+// Quick Sort
+void Sort::QuickSort(bool ascendent) {
+    QuickSortHelper(0, elements.size() - 1, ascendent);
+}
+
+void Sort::QuickSortHelper(int low, int high, bool ascendent) {
+    if (low < high) {
+        int pi = Partition(low, high, ascendent);
+        QuickSortHelper(low, pi - 1, ascendent);
+        QuickSortHelper(pi + 1, high, ascendent);
+    }
+}
+
+int Sort::Partition(int low, int high, bool ascendent) {
+    int pivot = elements[high];
+    int i = low - 1;
+    for (int j = low; j < high; ++j) {
+        if ((ascendent && elements[j] < pivot) || (!ascendent && elements[j] > pivot)) {
+            ++i;
+            std::swap(elements[i], elements[j]);
+        }
+    }
+    std::swap(elements[i + 1], elements[high]);
+    return i + 1;
+}
+
+// Utility Methods
+void Sort::Print() const {
+    for (int el : elements)
+        std::cout << el << " ";
+    std::cout << std::endl;
+}
+
+int Sort::GetElementsCount() const {
+    return elements.size();
+}
+
+int Sort::GetElementFromIndex(int index) const {
+    if (index < 0 || index >= elements.size()) return -1;
+    return elements[index];
+}
+
+
+
+
+main.cpp (Main Function)
+
+// main.cpp
+#include <iostream>
+#include "Sort.h"
+
+int main() {
+    std::cout << "Constructor: Random Values\n";
+    Sort s1(10, 10, 100);
+    s1.Print();
+    s1.InsertSort(true);
+    std::cout << "After Insertion Sort (Asc):\n";
+    s1.Print();
+
+    std::cout << "\nConstructor: Initializer List\n";
+    Sort s2{ 50, 20, 40, 10, 30 };
+    s2.Print();
+    s2.BubbleSort(false);
+    std::cout << "After Bubble Sort (Desc):\n";
+    s2.Print();
+
+    std::cout << "\nConstructor: From Vector\n";
+    std::vector<int> vec = { 5, 10, 15, 20, 25 };
+    Sort s3(vec, 3);
+    s3.Print();
+    s3.QuickSort(true);
+    std::cout << "After Quick Sort (Asc):\n";
+    s3.Print();
+
+    std::cout << "\nConstructor: Variadic\n";
+    Sort s4(5, 8, 4, 6, 2, 10);
+    s4.Print();
+    s4.InsertSort(false);
+    std::cout << "After Insertion Sort (Desc):\n";
+    s4.Print();
+
+    std::cout << "\nConstructor: From String\n";
+    Sort s5("100,20,30,5,80");
+    s5.Print();
+    s5.BubbleSort(true);
+    std::cout << "After Bubble Sort (Asc):\n";
+    s5.Print();
+
+    std::cout << "\nElement count in s1: " << s1.GetElementsCount() << "\n";
+    std::cout << "Element at index 2 in s1: " << s1.GetElementFromIndex(2) << "\n";
+
+    return 0;
+}
+
+
+
+
