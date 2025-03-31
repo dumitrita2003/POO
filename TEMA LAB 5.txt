@@ -1,0 +1,231 @@
+TEMA LAB 5
+
+/* Number.h */
+#ifndef NUMBER_H
+#define NUMBER_H
+
+#include <iostream>
+#include <cstring>
+
+class Number {
+private:
+    char* value;
+    int base;
+    int length;
+    
+    int CharToDigit(char c) const;
+    char DigitToChar(int d) const;
+    int ToDecimal() const;
+    void FromDecimal(int decimal, int newBase);
+
+public:
+    Number(const char* value, int base); // Constructor
+    Number(int num); // Constructor for integer input
+    Number(const Number& other); // Copy constructor
+    Number(Number&& other) noexcept; // Move constructor
+    ~Number(); // Destructor
+    
+    Number& operator=(const Number& other); // Copy assignment
+    Number& operator=(Number&& other) noexcept; // Move assignment
+    Number& operator=(int num);
+    Number& operator=(const char* str);
+    
+    void SwitchBase(int newBase);
+    void Print() const;
+    int GetDigitsCount() const;
+    int GetBase() const;
+    
+    char operator[](int index) const;
+    friend Number operator+(const Number& lhs, const Number& rhs);
+    friend Number operator-(const Number& lhs, const Number& rhs);
+    
+    bool operator>(const Number& other) const;
+    bool operator<(const Number& other) const;
+    bool operator>=(const Number& other) const;
+    bool operator<=(const Number& other) const;
+    bool operator==(const Number& other) const;
+    bool operator!=(const Number& other) const;
+    
+    Number& operator+=(const Number& other);
+    
+    Number& operator--(); // Prefix
+    Number operator--(int); // Postfix
+};
+
+#endif
+
+/* Number.cpp */
+#include "Number.h"
+#include <cmath>
+#include <algorithm>
+
+// Helper functions
+int Number::CharToDigit(char c) const {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+}
+
+char Number::DigitToChar(int d) const {
+    if (d >= 0 && d <= 9) return '0' + d;
+    if (d >= 10 && d <= 15) return 'A' + (d - 10);
+    return '?';
+}
+
+int Number::ToDecimal() const {
+    int decimal = 0;
+    for (int i = 0; i < length; i++) {
+        decimal = decimal * base + CharToDigit(value[i]);
+    }
+    return decimal;
+}
+
+void Number::FromDecimal(int decimal, int newBase) {
+    char buffer[50];
+    int index = 0;
+    do {
+        buffer[index++] = DigitToChar(decimal % newBase);
+        decimal /= newBase;
+    } while (decimal > 0);
+    buffer[index] = '\0';
+    std::reverse(buffer, buffer + index);
+    delete[] value;
+    value = new char[index + 1];
+    strcpy(value, buffer);
+    length = index;
+    base = newBase;
+}
+
+// Constructors and Destructor
+Number::Number(const char* val, int base) : base(base) {
+    length = strlen(val);
+    value = new char[length + 1];
+    strcpy(value, val);
+}
+
+Number::Number(int num) : base(10) {
+    FromDecimal(num, 10);
+}
+
+Number::Number(const Number& other) : base(other.base), length(other.length) {
+    value = new char[length + 1];
+    strcpy(value, other.value);
+}
+
+Number::Number(Number&& other) noexcept : base(other.base), length(other.length), value(other.value) {
+    other.value = nullptr;
+}
+
+Number::~Number() {
+    delete[] value;
+}
+
+// Operators
+Number& Number::operator=(const Number& other) {
+    if (this != &other) {
+        delete[] value;
+        base = other.base;
+        length = other.length;
+        value = new char[length + 1];
+        strcpy(value, other.value);
+    }
+    return *this;
+}
+
+Number& Number::operator=(Number&& other) noexcept {
+    if (this != &other) {
+        delete[] value;
+        value = other.value;
+        base = other.base;
+        length = other.length;
+        other.value = nullptr;
+    }
+    return *this;
+}
+
+Number& Number::operator=(int num) {
+    FromDecimal(num, 10);
+    return *this;
+}
+
+Number& Number::operator=(const char* str) {
+    delete[] value;
+    length = strlen(str);
+    value = new char[length + 1];
+    strcpy(value, str);
+    return *this;
+}
+
+void Number::SwitchBase(int newBase) {
+    int decimal = ToDecimal();
+    FromDecimal(decimal, newBase);
+}
+
+void Number::Print() const {
+    std::cout << value << " (base " << base << ")" << std::endl;
+}
+
+int Number::GetDigitsCount() const {
+    return length;
+}
+
+int Number::GetBase() const {
+    return base;
+}
+
+char Number::operator[](int index) const {
+    return (index >= 0 && index < length) ? value[index] : '?';
+}
+
+Number operator+(const Number& lhs, const Number& rhs) {
+    int resultBase = std::max(lhs.base, rhs.base);
+    int sum = lhs.ToDecimal() + rhs.ToDecimal();
+    Number result(0);
+    result.FromDecimal(sum, resultBase);
+    return result;
+}
+
+Number operator-(const Number& lhs, const Number& rhs) {
+    int resultBase = std::max(lhs.base, rhs.base);
+    int diff = lhs.ToDecimal() - rhs.ToDecimal();
+    Number result(0);
+    result.FromDecimal(diff, resultBase);
+    return result;
+}
+
+bool Number::operator>(const Number& other) const { return ToDecimal() > other.ToDecimal(); }
+bool Number::operator<(const Number& other) const { return ToDecimal() < other.ToDecimal(); }
+bool Number::operator>=(const Number& other) const { return ToDecimal() >= other.ToDecimal(); }
+bool Number::operator<=(const Number& other) const { return ToDecimal() <= other.ToDecimal(); }
+bool Number::operator==(const Number& other) const { return ToDecimal() == other.ToDecimal(); }
+bool Number::operator!=(const Number& other) const { return ToDecimal() != other.ToDecimal(); }
+
+Number& Number::operator--() {
+    memmove(value, value + 1, length);
+    value[--length] = '\0';
+    return *this;
+}
+
+Number Number::operator--(int) {
+    Number temp(*this);
+    value[--length] = '\0';
+    return temp;
+}
+
+/* main.cpp */
+#include "Number.h"
+
+int main() {
+    Number n1("10110010", 2);
+    Number n2("734", 8);
+    Number n3("FF", 16);
+
+    n1.Print();
+    n2.Print();
+    
+    n1 = (n2 + n3 - n1) + n1;
+    n1.SwitchBase(2);
+    n1.Print();
+    
+    return 0;
+}

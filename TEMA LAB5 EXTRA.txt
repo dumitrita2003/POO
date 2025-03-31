@@ -1,0 +1,198 @@
+TEMA LAB5 EXTRA 
+
+
+/* Complex.h */
+#ifndef COMPLEX_H
+#define COMPLEX_H
+
+#include <iostream>
+
+class Complex {
+private:
+    double real_data;
+    double imag_data;
+
+public:
+    Complex();
+    Complex(double real, double imag);
+
+    bool is_real() const;
+    double real() const;
+    double imag() const;
+    double abs() const;
+    Complex conjugate() const;
+
+    Complex& operator()(double real, double imag);
+
+    Complex operator+(const Complex& other) const;
+    Complex operator+(double value) const;
+    friend Complex operator+(double value, const Complex& other);
+
+    Complex operator-(const Complex& other) const;
+    Complex operator-(double value) const;
+    friend Complex operator-(double value, const Complex& other);
+
+    Complex operator*(const Complex& other) const;
+    Complex operator*(double value) const;
+    friend Complex operator*(double value, const Complex& other);
+
+    Complex operator-() const;
+
+    bool operator==(const Complex& other) const;
+    bool operator!=(const Complex& other) const;
+
+    Complex& operator++();
+    Complex operator++(int);
+    Complex& operator--();
+    Complex operator--(int);
+
+    friend std::ostream& operator<<(std::ostream& out, const Complex& complex);
+};
+
+#endif /* COMPLEX_H */
+
+/* Complex.cpp */
+#include "Complex.h"
+#include <cmath>
+
+Complex::Complex() : Complex(0, 0) {}
+
+Complex::Complex(double real, double imag) : real_data(real), imag_data(imag) {}
+
+bool Complex::is_real() const {
+    return imag_data == 0;
+}
+
+double Complex::real() const {
+    return real_data;
+}
+
+double Complex::imag() const {
+    return imag_data;
+}
+
+double Complex::abs() const {
+    return sqrt(real_data * real_data + imag_data * imag_data);
+}
+
+Complex Complex::conjugate() const {
+    return {real_data, -imag_data};
+}
+
+Complex& Complex::operator()(double real, double imag) {
+    real_data = real;
+    imag_data = imag;
+    return *this;
+}
+
+Complex Complex::operator+(const Complex& other) const {
+    return {real_data + other.real_data, imag_data + other.imag_data};
+}
+
+Complex Complex::operator+(double value) const {
+    return {real_data + value, imag_data};
+}
+
+Complex operator+(double value, const Complex& other) {
+    return other + value;
+}
+
+Complex Complex::operator-(const Complex& other) const {
+    return {real_data - other.real_data, imag_data - other.imag_data};
+}
+
+Complex Complex::operator-(double value) const {
+    return {real_data - value, imag_data};
+}
+
+Complex operator-(double value, const Complex& other) {
+    return {value - other.real_data, -other.imag_data};
+}
+
+Complex Complex::operator*(const Complex& other) const {
+    return {real_data * other.real_data - imag_data * other.imag_data,
+            real_data * other.imag_data + imag_data * other.real_data};
+}
+
+Complex Complex::operator*(double value) const {
+    return {real_data * value, imag_data * value};
+}
+
+Complex operator*(double value, const Complex& other) {
+    return other * value;
+}
+
+Complex Complex::operator-() const {
+    return {-real_data, -imag_data};
+}
+
+bool Complex::operator==(const Complex& other) const {
+    return real_data == other.real_data && imag_data == other.imag_data;
+}
+
+bool Complex::operator!=(const Complex& other) const {
+    return !(*this == other);
+}
+
+Complex& Complex::operator++() {
+    ++real_data;
+    return *this;
+}
+
+Complex Complex::operator++(int) {
+    Complex temp(*this);
+    ++(*this);
+    return temp;
+}
+
+Complex& Complex::operator--() {
+    --real_data;
+    return *this;
+}
+
+Complex Complex::operator--(int) {
+    Complex temp(*this);
+    --(*this);
+    return temp;
+}
+
+std::ostream& operator<<(std::ostream& out, const Complex& complex) {
+    if (complex.real_data != 0 || complex.imag_data == 0)
+        out << complex.real_data;
+    if (complex.imag_data != 0) {
+        if (complex.imag_data > 0 && complex.real_data != 0)
+            out << " + ";
+        else if (complex.imag_data < 0)
+            out << " - ";
+        out << std::abs(complex.imag_data) << "i";
+    }
+    return out;
+}
+
+/* main.cpp */
+#include "Complex.h"
+#include <iostream>
+
+int main() {
+    Complex a{1, 2};
+    Complex b{2, 3};
+    Complex c = a + b;
+    Complex d = c - a;
+    Complex e = (a * d).conjugate();
+
+    Complex res1 = e++;
+    Complex& res2 = ++e;
+    Complex res3 = e--;
+    Complex& res4 = --e;
+
+    Complex f = (a + b - d) * c;
+    std::cout << f << '\n' << a << '\n';
+
+    Complex g = f(-1, -2)(-2, -3)(-4, -5);
+    Complex h = {-4, -5};
+
+    Complex i = h - (h + 5) * 2;
+    Complex j = -i + i;
+
+    return 0;
+}
